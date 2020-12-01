@@ -5,7 +5,7 @@ import math
 
 
 def generate_random_cost_matrix(num_v, max_cost):
-    """Generates undirected connected graph matrix with edge costs"""
+    """Generates cost matrix for random undirected and connected graph"""
     # Generate the first half
     matrix = [[(random.randint(1, max_cost) if i < j else 0) for i in range(num_v)] for j in range(num_v)]
 
@@ -14,29 +14,15 @@ def generate_random_cost_matrix(num_v, max_cost):
 
 
 def generate_euclidean_cost_matrix(num_v, max_cost):
-    """Generates cost matrix for random Euclidean graph"""
+    """Generates cost matrix for random undirected and connected Euclidean graph"""
     # Generate random (x,y) coordinates
     vertices = [(random.randint(1, max_cost), random.randint(1, max_cost)) for _ in range(num_v)]
 
     return coordinates_to_cost_matrix(vertices)
 
 
-def coordinates_to_cost_matrix(vertices):
-    """Converts (x,y) coordinates to cost matrix"""
-    matrix = []
-    for i, u in enumerate(vertices):
-        row = []
-        for j, v in enumerate(vertices):
-            if i != j:
-                row.append(get_distance(u, v))
-            else:
-                row.append(0.0)
-        matrix.append(row)
-    return matrix
-
-
 def generate_circular_cost_matrix(num_v, r):
-    """Generates cost matrix for evenly spaced points around a circle"""
+    """Generates random cost matrix for evenly spaced points around a circle"""
 
     # Determine number of slices around the circle
     theta = (2 * math.pi) / num_v
@@ -57,6 +43,20 @@ def generate_circular_cost_matrix(num_v, r):
     # Return matrix and minimum distance
     # return coordinates_to_cost_matrix(vertices), min_distance
     return coordinates_to_cost_matrix(vertices), min_cost
+
+
+def coordinates_to_cost_matrix(vertices):
+    """Converts (x,y) coordinates to cost matrix"""
+    matrix = []
+    for i, u in enumerate(vertices):
+        row = []
+        for j, v in enumerate(vertices):
+            if i != j:
+                row.append(get_distance(u, v))
+            else:
+                row.append(0.0)
+        matrix.append(row)
+    return matrix
 
 
 def get_distance(u, v):
@@ -304,6 +304,7 @@ def matrix_print(m):
 
 def verify_exact_algorithms():
     # Generate random circular cost matrices
+    print("************ TESTING CIRCULAR EUCLIDEAN COST MATRICES ************", end="\n\n")
     for i in range(4, 10):
         matrix, min_cost = generate_circular_cost_matrix(i, 1000)
         brute_iter_path, brute_iter_cost = brute_iterative(matrix)
@@ -322,6 +323,24 @@ def verify_exact_algorithms():
         if round(brute_recur_cost, precision) != round(min_cost, precision) \
                 or round(brute_iter_cost, precision) != round(min_cost, precision) \
                 or round(dynamic_cost, precision) != round(min_cost, precision):
+            return False
+
+    print("************ TESTING RANDOM COST MATRICES ************", end="\n\n")
+    for i in range(4, 10):
+        matrix = generate_random_cost_matrix(i, 1000)
+        brute_iter_path, brute_iter_cost = brute_iterative(matrix)
+        brute_recur_path, brute_recur_cost = brute_recur(matrix)
+        dynamic_path, dynamic_cost = dynamic_programming(matrix)
+        print(f"Testing {i}x{i} matrix...", end="\n\n")
+        matrix_print(matrix)
+        print()
+        print(f"Brute Iterative: \t{brute_iter_path} \tCost: {brute_iter_cost}")
+        print(f"Brute Recursive: \t{brute_recur_path} \tCost: {brute_recur_cost}")
+        print(f"Dynamic Programming: \t{dynamic_path} \tCost: {dynamic_cost}")
+        print()
+
+        # Compare each solution
+        if brute_recur_cost != brute_iter_cost != dynamic_cost:
             return False
     return True
 
