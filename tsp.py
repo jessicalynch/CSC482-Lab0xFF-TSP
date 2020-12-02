@@ -29,7 +29,7 @@ def generate_circular_cost_matrix(num_v, r):
 
     # Calculate (x,y) coordinate at each slice
     vertices = [(r * math.cos(i * theta), r * math.sin(i * theta))
-                for i in range(num_v)]
+                   for i in range(num_v)]
 
     min_cost = 0
     for i in range(len(vertices)):
@@ -66,6 +66,106 @@ def get_distance(u, v):
     y1 = u[1]
     y2 = v[1]
     return math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
+
+
+def ant_colony(m, num_ants, num_steps):
+    """Ant colony TSP algorithm"""
+
+    n = len(m)
+    PHERO_FACTOR = 1.5
+    DECAY_FACTOR = .9
+    min_cost = sys.maxsize
+
+    # Set phero matrix to initial probability based on edge cost
+    phero = [[1/j if int(j) != 0 else 0 for j in row] for row in m]
+
+    steps_since_path_changed = 0
+    while steps_since_path_changed < num_steps:
+        print("STEP:\t\t", steps_since_path_changed)
+        # Init new pheromones matrix to zeros
+        new_phero = [[0] * n for _ in range(n)]
+
+        # Each ant embarks on a probabilistic path
+        for ant in range(num_ants):
+            vertices = list(range(n))
+
+            # Ant starts at vertex 0
+            u = vertices.pop(0)
+            path = [u]
+            cost = 0
+            total_attraction = 0
+
+            # And randomly picks remaining vertices,
+            # while influenced by their attractiveness
+            for _ in range(n-1):
+
+                # Build list of unvisited vertices
+                row = enumerate(m[u])
+                unvisited = [v for v in row if v[0] in vertices]
+                attraction = [0] * n
+
+                # Determine attraction level of each vertex
+                for v in unvisited:
+                    v_id = v[0]
+                    v_cost = v[1]
+                    v_attraction = (1 * phero[u][v_id]) / v_cost
+                    attraction[v_id] = v_attraction
+                    total_attraction += v_attraction
+
+                # Generate random number between 0 and 1
+                Q = random.random()
+                cumulative_probability = 0
+
+                # Ant makes the choice of where to go next
+                for v in unvisited:
+                    v_id = v[0]
+                    v_probability = attraction[v_id] / total_attraction
+                    cumulative_probability += v_probability
+                    if Q < cumulative_probability:
+                        break
+
+                # And then goes there
+                u = v_id
+                path.append(u)
+                vertices.remove(u)
+                cost += v[1]
+
+            # Ant completes the journey back home
+            # and final path and cost are determined
+            path.append(0)
+            cost += m[u][0]
+
+            # Check if this ant's path is the best so far
+            if cost < min_cost:
+                min_cost = cost
+                min_path = path
+                min_path_changed = True
+            #
+            # print("ant:", ant)
+            # print("\t", path, cost)
+
+            # Ant lays pheromones on its path
+            for i in range(n):
+                u = path[i]
+                v = path[(i + 1) % n]
+                # print(f"Laying pheromones from {u} to {v}")
+                new_phero[u][v] += PHERO_FACTOR / cost
+
+        # Decay previous pheromone values
+        phero = [[x * DECAY_FACTOR for x in row] for row in phero]
+
+        # Add new pheromones
+        for i, row in enumerate(phero):
+            for j, _ in enumerate(row):
+                phero[i][j] += new_phero[i][j]
+
+        if min_path_changed:
+            steps_since_path_changed = 0
+        else:
+            steps_since_path_changed += 1
+        min_path_changed = False
+
+    return min_path, min_cost
 
 
 def greedy(m):
