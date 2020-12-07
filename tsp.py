@@ -412,7 +412,7 @@ def verify_exact_algorithms(graph_type, max_value):
         else:
             raise ValueError("Graph type not recognized")
 
-        print(f"Testing {i}x{i} {graph_type} matrix...")
+        print(f"Testing {i}x{i} {graph_type.upper()} matrix...")
         matrix_print(matrix)
         print()
 
