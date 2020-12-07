@@ -64,9 +64,8 @@ def get_distance(u, v):
     return math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
 
 
-def ant_colony(m, num_ants, max_unchanged_steps):
+def tsp_ant_colony(m, num_ants, max_unchanged_steps):
     """Ant colony TSP algorithm"""
-
     n = len(m)
     PHERO_FACTOR = 1.5
     DECAY_FACTOR = .5
@@ -161,7 +160,7 @@ def ant_colony(m, num_ants, max_unchanged_steps):
     return min_path, min_cost
 
 
-def greedy(m):
+def tsp_greedy(m):
     """Finds a path by always choosing the shortest edge"""
     counter = 0
 
@@ -201,7 +200,7 @@ def greedy(m):
     return path, cost, counter
 
 
-def brute_iterative(m):
+def tsp_brute_iterative(m):
     """Finds optimal solution to the TSP by checking every possibility"""
     # Get permutations for an n-1 length list,
     # and sandwich each permutation with zeros
@@ -227,9 +226,8 @@ def brute_iterative(m):
     return min_p, min_cost
 
 
-def brute_recur(m):
+def tsp_brute_recur(m):
     """Finds optimal solution to the TSP by checking every possibility"""
-
     # Start and end with the same node to complete the circuit
     start_node = end_node = 0
 
@@ -237,7 +235,7 @@ def brute_recur(m):
     tour_nodes = [x for x in range(len(m)) if x != start_node]
 
     # Recursively find the minimum cost path between tour nodes
-    path, cost = brute_recur_helper(m, start_node, end_node, tour_nodes)
+    path, cost = tsp_brute_recur_helper(m, start_node, end_node, tour_nodes)
 
     # Add starting node to beginning of the best path
     path.insert(0, start_node)
@@ -245,9 +243,8 @@ def brute_recur(m):
     return path, cost
 
 
-def brute_recur_helper(m, start_node, end_node, tour_nodes):
+def tsp_brute_recur_helper(m, start_node, end_node, tour_nodes):
     """Recursive helper function for brute_recur"""
-
     # Base case: only one node left to visit
     if len(tour_nodes) == 1:
         last_tour_node = tour_nodes[0]
@@ -269,7 +266,7 @@ def brute_recur_helper(m, start_node, end_node, tour_nodes):
             # Use each k in tour_nodes as a starting node
             # for the recursive calls
             unvisited = [x for x in tour_nodes if x != k]
-            tmp_path, tmp_cost = brute_recur_helper(m, k, end_node, unvisited)
+            tmp_path, tmp_cost = tsp_brute_recur_helper(m, k, end_node, unvisited)
 
             # Take the branch with the least cost
             best_cost_from_k = m[start_node][k] + tmp_cost
@@ -280,7 +277,7 @@ def brute_recur_helper(m, start_node, end_node, tour_nodes):
         return min_path, min_cost
 
 
-def dynamic_programming(m):
+def tsp_dynamic(m):
     """brute_recur with caching"""
     # Start and end with the same node to complete the circuit
     start_node = end_node = 0
@@ -296,7 +293,7 @@ def dynamic_programming(m):
         cache.append([-1] * power_set_length)
 
     # Recursively find the minimum cost path between tour nodes
-    path, cost = dynamic_programming_helper(m, start_node, end_node, tour_nodes, cache)
+    path, cost = tsp_dynamic_helper(m, start_node, end_node, tour_nodes, cache)
 
     # Add starting node to beginning of the best path
     path.insert(0, start_node)
@@ -304,9 +301,8 @@ def dynamic_programming(m):
     return path, cost
 
 
-def dynamic_programming_helper(m, start_node, end_node, tour_nodes, cache):
+def tsp_dynamic_helper(m, start_node, end_node, tour_nodes, cache):
     """Recursive helper function for dynamic_programming"""
-
     # Solution already in cache table
     if cache[start_node][list_to_index(tour_nodes)] != -1:
         return cache[start_node][list_to_index(tour_nodes)]
@@ -335,7 +331,7 @@ def dynamic_programming_helper(m, start_node, end_node, tour_nodes, cache):
                 # Use each k in tour_nodes as a starting node
                 # for the recursive calls
                 unvisited = [x for x in tour_nodes if x != k]
-                tmp_path, tmp_cost = dynamic_programming_helper(m, k, end_node, unvisited, cache)
+                tmp_path, tmp_cost = tsp_dynamic_helper(m, k, end_node, unvisited, cache)
 
                 # Save solution in cache
                 cache[k][list_to_index(unvisited)] = tmp_path, tmp_cost
@@ -398,22 +394,23 @@ def matrix_print(m):
 
 
 def verify_exact_algorithms():
-    exact_algs = [brute_iterative, brute_recur, dynamic_programming]
+    exact_algs = [tsp_brute_iterative, tsp_brute_recur, tsp_dynamic]
     num_algs = len(exact_algs)
     results = [0] * num_algs
+    largest_size = 10
 
     # Generate random circular cost matrices
-    for i in range(4, 10):
+    for i in range(4, largest_size):
         matrix, min_cost = generate_circular_cost_matrix(i, 1000)
         print(f"Testing {i}x{i} matrix...")
         matrix_print(matrix)
+        print()
 
         # Get min path and min cost from each alg
         for x in range(num_algs):
             results[x] = exact_algs[x](matrix)
-            path = results[x][0]
-            cost = results[x][1]
-            print(f"{exact_algs[x].__name__:15}", f"\t{path}\t{cost}")
+            path, cost = results[x][0], round(results[x][1], 2)
+            print(f"{exact_algs[x].__name__:15}", f"\t{str(path):{largest_size * 3 + 2}}\t{cost}")
 
         # Ensure all paths are equal
         for x in range(num_algs - 1):
