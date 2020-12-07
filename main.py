@@ -13,7 +13,7 @@ sys.stdout = open(file_path, "w")
 
 def main():
 
-    print("Verified:", tsp.verify_exact_algorithms())
+    print("Verified:", tsp.verify_exact_algorithms("random", 100))
 
 
 if __name__ == "__main__":

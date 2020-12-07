@@ -393,16 +393,26 @@ def matrix_print(m):
             print()
 
 
-def verify_exact_algorithms():
+def verify_exact_algorithms(graph_type, max_value):
     exact_algs = [tsp_brute_iterative, tsp_brute_recur, tsp_dynamic]
     num_algs = len(exact_algs)
     results = [0] * num_algs
     largest_size = 10
 
-    # Generate random circular cost matrices
+    # Test random graphs of increasing size
     for i in range(4, largest_size):
-        matrix, min_cost = generate_circular_cost_matrix(i, 1000)
-        print(f"Testing {i}x{i} matrix...")
+
+        # Generate new i x i graph
+        if graph_type == "circular":
+            matrix, min_cost = generate_circular_cost_matrix(i, max_value)
+        elif graph_type == "euclidean":
+            matrix = generate_euclidean_cost_matrix(i, max_value)
+        elif graph_type == "random":
+            matrix = generate_random_cost_matrix(i, max_value)
+        else:
+            raise ValueError("Graph type not recognized")
+
+        print(f"Testing {i}x{i} {graph_type} matrix...")
         matrix_print(matrix)
         print()
 
@@ -412,12 +422,16 @@ def verify_exact_algorithms():
             path, cost = results[x][0], round(results[x][1], 2)
             print(f"{exact_algs[x].__name__:15}", f"\t{str(path):{largest_size * 3 + 2}}\t{cost}")
 
-        # Ensure all paths are equal
+        # Ensure all algorithms return the same path
+        # (or the reverse)
         for x in range(num_algs - 1):
             if results[x][0] != results[x + 1][0] \
-                    and results[x][0] != list(reversed(results[x + 1][0]))\
-                    or round(results[x][1], 2) != round(min_cost, 2):
+                    and results[x][0] != list(reversed(results[x + 1][0])):
                 return False
+            # Check if min cost is accurate on circular graphs where it is known
+            if graph_type == "circular":
+                if round(results[x][1], 2) != round(min_cost, 2):
+                    return False
         print()
     return True
 
