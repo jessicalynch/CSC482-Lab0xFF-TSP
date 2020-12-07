@@ -27,22 +27,18 @@ def generate_circular_cost_matrix(num_v, r):
     # Determine number of slices around the circle
     theta = (2 * math.pi) / num_v
 
-    # Calculate (x,y) coordinate at each slice
-    vertices = [(r * math.cos(i * theta), r * math.sin(i * theta))
+    # Generate (x,y) coordinate at each slice
+    coordinates = [(r * math.cos(i * theta), r * math.sin(i * theta))
                    for i in range(num_v)]
 
-    min_cost = 0
-    for i in range(len(vertices)):
-        u = vertices[i]
-        v = vertices[(i + 1) % num_v]
-        min_cost += get_distance(u, v)
+    # Calculate min cost to travel around the circle
+    min_cost = get_distance(coordinates[0], coordinates[1]) * num_v
 
-    # Put vertices in random order
-    random.shuffle(vertices)
+    # Put coordinates in random order
+    random.shuffle(coordinates)
 
-    # Return matrix and minimum distance
-    # return coordinates_to_cost_matrix(vertices), min_distance
-    return coordinates_to_cost_matrix(vertices), min_cost
+    # Return cost matrix and minimum cost
+    return coordinates_to_cost_matrix(coordinates), min_cost
 
 
 def coordinates_to_cost_matrix(vertices):
@@ -68,19 +64,19 @@ def get_distance(u, v):
     return math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
 
 
-def ant_colony(m, num_ants, num_steps):
+def ant_colony(m, num_ants, max_unchanged_steps):
     """Ant colony TSP algorithm"""
 
     n = len(m)
     PHERO_FACTOR = 1.5
-    DECAY_FACTOR = .9
+    DECAY_FACTOR = .5
     min_cost = sys.maxsize
 
     # Set phero matrix to initial probability based on edge cost
-    phero = [[1/j if int(j) != 0 else 0 for j in row] for row in m]
+    phero = [[1 / j if int(j) != 0 else 0 for j in row] for row in m]
 
     steps_since_path_changed = 0
-    while steps_since_path_changed < num_steps:
+    while steps_since_path_changed < max_unchanged_steps:
         print("STEP:\t\t", steps_since_path_changed)
         # Init new pheromones matrix to zeros
         new_phero = [[0] * n for _ in range(n)]
@@ -97,7 +93,7 @@ def ant_colony(m, num_ants, num_steps):
 
             # And randomly picks remaining vertices,
             # while influenced by their attractiveness
-            for _ in range(n-1):
+            for _ in range(n - 1):
 
                 # Build list of unvisited vertices
                 row = enumerate(m[u])
@@ -140,9 +136,6 @@ def ant_colony(m, num_ants, num_steps):
                 min_cost = cost
                 min_path = path
                 min_path_changed = True
-            #
-            # print("ant:", ant)
-            # print("\t", path, cost)
 
             # Ant lays pheromones on its path
             for i in range(n):
@@ -170,6 +163,7 @@ def ant_colony(m, num_ants, num_steps):
 
 def greedy(m):
     """Finds a path by always choosing the shortest edge"""
+    counter = 0
 
     # Init list of vertices
     n = len(m)
@@ -189,6 +183,7 @@ def greedy(m):
         # Find vertex with the least edge cost
         min_edge_cost = sys.maxsize
         for vertex, edge_cost in unvisited:
+            counter += 1
             if edge_cost < min_edge_cost:
                 min_edge_cost = edge_cost
                 v = vertex
@@ -203,7 +198,7 @@ def greedy(m):
     path.append(0)
     cost += m[u][0]
 
-    return path, cost
+    return path, cost, counter
 
 
 def brute_iterative(m):
@@ -403,45 +398,30 @@ def matrix_print(m):
 
 
 def verify_exact_algorithms():
+    exact_algs = [brute_iterative, brute_recur, dynamic_programming]
+    num_algs = len(exact_algs)
+    results = [0] * num_algs
+
     # Generate random circular cost matrices
-    print("************ TESTING CIRCULAR EUCLIDEAN COST MATRICES ************", end="\n\n")
     for i in range(4, 10):
         matrix, min_cost = generate_circular_cost_matrix(i, 1000)
-        brute_iter_path, brute_iter_cost = brute_iterative(matrix)
-        brute_recur_path, brute_recur_cost = brute_recur(matrix)
-        dynamic_path, dynamic_cost = dynamic_programming(matrix)
-        print(f"Testing {i}x{i} matrix...", end="\n\n")
+        print(f"Testing {i}x{i} matrix...")
         matrix_print(matrix)
-        print()
-        print(f"Brute Iterative: \t{brute_iter_path} \tCost: {brute_iter_cost}")
-        print(f"Brute Recursive: \t{brute_recur_path} \tCost: {brute_recur_cost}")
-        print(f"Dynamic Programming: \t{dynamic_path} \tCost: {dynamic_cost}")
-        print()
 
-        # Compare solution with minimum distance around the circle
-        precision = 8
-        if round(brute_recur_cost, precision) != round(min_cost, precision) \
-                or round(brute_iter_cost, precision) != round(min_cost, precision) \
-                or round(dynamic_cost, precision) != round(min_cost, precision):
-            return False
+        # Get min path and min cost from each alg
+        for x in range(num_algs):
+            results[x] = exact_algs[x](matrix)
+            path = results[x][0]
+            cost = results[x][1]
+            print(f"{exact_algs[x].__name__:15}", f"\t{path}\t{cost}")
 
-    print("************ TESTING RANDOM COST MATRICES ************", end="\n\n")
-    for i in range(4, 10):
-        matrix = generate_random_cost_matrix(i, 1000)
-        brute_iter_path, brute_iter_cost = brute_iterative(matrix)
-        brute_recur_path, brute_recur_cost = brute_recur(matrix)
-        dynamic_path, dynamic_cost = dynamic_programming(matrix)
-        print(f"Testing {i}x{i} matrix...", end="\n\n")
-        matrix_print(matrix)
+        # Ensure all paths are equal
+        for x in range(num_algs - 1):
+            if results[x][0] != results[x + 1][0] \
+                    and results[x][0] != list(reversed(results[x + 1][0]))\
+                    or round(results[x][1], 2) != round(min_cost, 2):
+                return False
         print()
-        print(f"Brute Iterative: \t{brute_iter_path} \tCost: {brute_iter_cost}")
-        print(f"Brute Recursive: \t{brute_recur_path} \tCost: {brute_recur_cost}")
-        print(f"Dynamic Programming: \t{dynamic_path} \tCost: {dynamic_cost}")
-        print()
-
-        # Compare each solution
-        if brute_recur_cost != brute_iter_cost != dynamic_cost:
-            return False
     return True
 
 
