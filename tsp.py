@@ -416,10 +416,11 @@ def verify_exact_algorithms(graph_type, max_value):
 
     num_algs = len(exact_algs)
     results = [0] * num_algs
-    largest_size = 10
+    max_func_name_len = max([len(x.__name__) for x in exact_algs])
+    LARGEST_MATRIX = 10
 
     # Test random graphs of increasing size
-    for i in range(4, largest_size):
+    for i in range(4, LARGEST_MATRIX + 1):
 
         # Generate new i x i graph
         if graph_type == "circular":
@@ -440,8 +441,8 @@ def verify_exact_algorithms(graph_type, max_value):
             results[x] = exact_algs[x](matrix)
             alg_path = results[x][0]
             alg_cost = round(results[x][1], 2)
-            print(f"{exact_algs[x].__name__:15}",
-                  f"\t{str(alg_path):{largest_size * 3 + 2}}\t{alg_cost}")
+            print(f"{exact_algs[x].__name__:{max_func_name_len + 1}}",
+                  f"\t{str(alg_path):{LARGEST_MATRIX * 3 + 3}}\t{alg_cost}")
 
         # Ensure all algorithms return the same path as each other
         # (or the reverse)
