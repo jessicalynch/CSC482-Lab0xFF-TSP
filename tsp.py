@@ -406,7 +406,14 @@ def matrix_print(m):
 
 
 def verify_exact_algorithms(graph_type, max_value):
+    # Make list of exact algorithms to test
     exact_algs = [tsp_brute_iterative, tsp_brute_recur, tsp_dynamic]
+
+    # Add "greedy" if using a circular graph,
+    # as it will always return the min path
+    if graph_type == "circular":
+        exact_algs.append(tsp_greedy)
+
     num_algs = len(exact_algs)
     results = [0] * num_algs
     largest_size = 10
