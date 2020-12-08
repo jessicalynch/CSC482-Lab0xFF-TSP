@@ -23,7 +23,6 @@ def generate_euclidean_cost_matrix(num_v, max_cost):
 
 def generate_circular_cost_matrix(num_v, r):
     """Generates random cost matrix for evenly spaced points around a circle"""
-
     # Determine number of slices around the circle
     theta = (2 * math.pi) / num_v
 
@@ -31,14 +30,30 @@ def generate_circular_cost_matrix(num_v, r):
     coordinates = [(r * math.cos(i * theta), r * math.sin(i * theta))
                    for i in range(num_v)]
 
-    # Calculate min cost to travel around the circle
+    # Use the first two points to determine
+    # the min cost to travel around the circle
     min_cost = get_distance(coordinates[0], coordinates[1]) * num_v
 
-    # Put coordinates in random order
-    random.shuffle(coordinates)
+    # Make an indexed list of coordinates
+    vertices = list(enumerate(coordinates))
+
+    # Put the vertex list in a new random order
+    random.shuffle(vertices)
+
+    # Use the new position of initial vertex numbers
+    # to determine min path
+    min_path = []
+    for i in range(len(vertices)):
+        closest_vertex = [y[0] for y in vertices].index(i)
+        min_path.append(closest_vertex)
+    zero_loc = min_path.index(0)
+    min_path = min_path[zero_loc:] + min_path[:zero_loc] + [0]
+
+    # Strip coordinates from indexed list
+    coordinates = [i[1] for i in vertices]
 
     # Return cost matrix and minimum cost
-    return coordinates_to_cost_matrix(coordinates), min_cost
+    return coordinates_to_cost_matrix(coordinates), min_path, min_cost
 
 
 def coordinates_to_cost_matrix(vertices):
@@ -162,8 +177,6 @@ def tsp_ant_colony(m, num_ants, max_unchanged_steps):
 
 def tsp_greedy(m):
     """Finds a path by always choosing the shortest edge"""
-    counter = 0
-
     # Init list of vertices
     n = len(m)
     vertices = list(range(n))
@@ -182,7 +195,6 @@ def tsp_greedy(m):
         # Find vertex with the least edge cost
         min_edge_cost = sys.maxsize
         for vertex, edge_cost in unvisited:
-            counter += 1
             if edge_cost < min_edge_cost:
                 min_edge_cost = edge_cost
                 v = vertex
@@ -197,7 +209,7 @@ def tsp_greedy(m):
     path.append(0)
     cost += m[u][0]
 
-    return path, cost, counter
+    return path, cost
 
 
 def tsp_brute_iterative(m):
@@ -404,7 +416,7 @@ def verify_exact_algorithms(graph_type, max_value):
 
         # Generate new i x i graph
         if graph_type == "circular":
-            matrix, min_cost = generate_circular_cost_matrix(i, max_value)
+            matrix, min_path, min_cost = generate_circular_cost_matrix(i, max_value)
         elif graph_type == "euclidean":
             matrix = generate_euclidean_cost_matrix(i, max_value)
         elif graph_type == "random":
@@ -416,13 +428,15 @@ def verify_exact_algorithms(graph_type, max_value):
         matrix_print(matrix)
         print()
 
-        # Get min path and min cost from each alg
+        # Print min path and min cost from each alg
         for x in range(num_algs):
             results[x] = exact_algs[x](matrix)
-            path, cost = results[x][0], round(results[x][1], 2)
-            print(f"{exact_algs[x].__name__:15}", f"\t{str(path):{largest_size * 3 + 2}}\t{cost}")
+            alg_path = results[x][0]
+            alg_cost = round(results[x][1], 2)
+            print(f"{exact_algs[x].__name__:15}",
+                  f"\t{str(alg_path):{largest_size * 3 + 2}}\t{alg_cost}")
 
-        # Ensure all algorithms return the same path
+        # Ensure all algorithms return the same path as each other
         # (or the reverse)
         for x in range(num_algs - 1):
             if results[x][0] != results[x + 1][0] \
@@ -432,6 +446,15 @@ def verify_exact_algorithms(graph_type, max_value):
             if graph_type == "circular":
                 if round(results[x][1], 2) != round(min_cost, 2):
                     return False
+
+        # If we made it this far, we know the results
+        # are consistent between algorithms.
+        # If using circular graphs, we can do one more test
+        # to make sure the algorithms match the known min path
+        if graph_type == "circular":
+            if results[0][0] != min_path and results[0][0] != list(reversed(min_path)):
+                return False
+
         print()
     return True
 

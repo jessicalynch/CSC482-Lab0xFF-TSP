@@ -12,8 +12,7 @@ sys.stdout = open(file_path, "w")
 
 
 def main():
-
-    print("Verified:", tsp.verify_exact_algorithms("euclidean", 100))
+    print("Verified:", tsp.verify_exact_algorithms("circular", 100))
 
 
 if __name__ == "__main__":
