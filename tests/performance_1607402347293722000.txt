@@ -1,0 +1,17 @@
+<Functions verified>
+
+                              tsp_brute_iterative                        tsp_brute_recur                            tsp_dynamic
+         N         Time           DR     expected         Time           DR     expected         Time           DR     expected
+
+         2       9357ns                                 5097ns                                 8804ns                          
+         3       7647ns                                 7065ns                                19763ns                          
+         4      16331ns         1.75         6.00      16052ns         3.15         6.00      50112ns         5.69        16.00
+         5      59197ns                                51685ns                               188529ns                          
+         6     323851ns        42.35        60.00     248752ns        35.21        60.00     725761ns        36.72        32.00
+         7          2ms                                    1ms                                    3ms                          
+         8         17ms      1051.42       840.00         10ms       636.80       840.00          8ms       161.88        64.00
+         9        180ms                                   83ms                                   26ms                          
+        10           2s     37116.28     15120.00        820ms     15875.94     15120.00         96ms       511.13       128.00
+        11          19s                                     7s                                  255ms                          
+        12         488s   1509728.62    332640.00         106s    426842.75    332640.00        854ms      1177.53       256.00
+        13

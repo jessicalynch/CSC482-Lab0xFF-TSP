@@ -220,6 +220,7 @@ def tsp_brute_iterative(m):
     n = len(m)
     perms = itertools.permutations(range(n - 1))
     perms = [[0] + [int(x) + 1 for x in perm] + [0] for perm in perms]
+    min_p = []
 
     # Check the cost of each permutation
     min_cost = sys.maxsize
@@ -347,6 +348,7 @@ def tsp_dynamic_helper(m, start_node, end_node, tour_nodes, cache):
 
                 # Save solution in cache
                 cache[k][list_to_index(unvisited)] = tmp_path, tmp_cost
+                # print("saving", k, unvisited, tmp_cost)
 
                 # Take the branch with the least cost
                 best_cost_from_k = m[start_node][k] + tmp_cost
@@ -405,7 +407,7 @@ def matrix_print(m):
             print()
 
 
-def verify_exact_algorithms(graph_type, max_value):
+def verify_exact_algorithms(graph_type, max_value, print_results=False):
     # Make list of exact algorithms to test
     exact_algs = [tsp_brute_iterative, tsp_brute_recur, tsp_dynamic]
 
@@ -417,7 +419,7 @@ def verify_exact_algorithms(graph_type, max_value):
     num_algs = len(exact_algs)
     results = [0] * num_algs
     max_func_name_len = max([len(x.__name__) for x in exact_algs])
-    LARGEST_MATRIX = 10
+    LARGEST_MATRIX = 9
 
     # Test random graphs of increasing size
     for i in range(4, LARGEST_MATRIX + 1):
@@ -432,17 +434,19 @@ def verify_exact_algorithms(graph_type, max_value):
         else:
             raise ValueError("Graph type not recognized")
 
-        print(f"Testing {i}x{i} {graph_type.upper()} matrix...")
-        matrix_print(matrix)
-        print()
+        if print_results:
+            print(f"Testing {i}x{i} {graph_type.upper()} matrix...")
+            matrix_print(matrix)
+            print()
 
         # Print min path and min cost from each alg
         for x in range(num_algs):
             results[x] = exact_algs[x](matrix)
             alg_path = results[x][0]
             alg_cost = round(results[x][1], 2)
-            print(f"{exact_algs[x].__name__:{max_func_name_len + 1}}",
-                  f"\t{str(alg_path):{LARGEST_MATRIX * 3 + 3}}\t{alg_cost}")
+            if print_results:
+                print(f"{exact_algs[x].__name__:{max_func_name_len + 1}}",
+                      f"\t{str(alg_path):{LARGEST_MATRIX * 3 + 3}}\t{alg_cost}")
 
         # Ensure all algorithms return the same path as each other
         # (or the reverse)
@@ -462,8 +466,8 @@ def verify_exact_algorithms(graph_type, max_value):
         if graph_type == "circular":
             if results[0][0] != min_path and results[0][0] != list(reversed(min_path)):
                 return False
-
-        print()
+        if print_results:
+            print()
     return True
 
 
