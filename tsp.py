@@ -1,3 +1,7 @@
+#!/usr/bin/env python3
+"""tsp.py: Algorithms and helper functions for the Travelling Salesperson Problem"""
+__author__ = "Jessica Lynch"
+
 import random
 import itertools
 import sys
@@ -79,11 +83,9 @@ def get_distance(u, v):
     return math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
 
 
-def tsp_ant_colony(m, num_ants, max_unchanged_steps):
+def tsp_ant_colony(m, num_ants, phero_factor, decay_factor, max_unchanged_steps):
     """Ant colony TSP algorithm"""
     n = len(m)
-    PHERO_FACTOR = 1.5
-    DECAY_FACTOR = .5
     min_cost = sys.maxsize
 
     # Set phero matrix to initial probability based on edge cost
@@ -91,7 +93,7 @@ def tsp_ant_colony(m, num_ants, max_unchanged_steps):
 
     steps_since_path_changed = 0
     while steps_since_path_changed < max_unchanged_steps:
-        print("STEP:\t\t", steps_since_path_changed)
+        # print("STEP:\t\t", steps_since_path_changed)
         # Init new pheromones matrix to zeros
         new_phero = [[0] * n for _ in range(n)]
 
@@ -156,10 +158,10 @@ def tsp_ant_colony(m, num_ants, max_unchanged_steps):
                 u = path[i]
                 v = path[(i + 1) % n]
                 # print(f"Laying pheromones from {u} to {v}")
-                new_phero[u][v] += PHERO_FACTOR / cost
+                new_phero[u][v] += phero_factor / cost
 
         # Decay previous pheromone values
-        phero = [[x * DECAY_FACTOR for x in row] for row in phero]
+        phero = [[x * decay_factor for x in row] for row in phero]
 
         # Add new pheromones
         for i, row in enumerate(phero):
@@ -240,7 +242,8 @@ def tsp_brute_iterative(m):
 
 
 def tsp_brute_recur(m):
-    """Finds optimal solution to the TSP by checking every possibility"""
+    """Finds optimal solution to the TSP
+    by recursively checking every possibility"""
     # Start and end with the same node to complete the circuit
     start_node = end_node = 0
 
@@ -257,7 +260,7 @@ def tsp_brute_recur(m):
 
 
 def tsp_brute_recur_helper(m, start_node, end_node, tour_nodes):
-    """Recursive helper function for brute_recur"""
+    """Recursive helper function for tsp_brute_recur"""
     # Base case: only one node left to visit
     if len(tour_nodes) == 1:
         last_tour_node = tour_nodes[0]
@@ -291,7 +294,7 @@ def tsp_brute_recur_helper(m, start_node, end_node, tour_nodes):
 
 
 def tsp_dynamic(m):
-    """brute_recur with caching"""
+    """Bellman–Held–Karp dynamic solution / tsp_brute_recur with caching"""
     # Start and end with the same node to complete the circuit
     start_node = end_node = 0
 
@@ -315,7 +318,7 @@ def tsp_dynamic(m):
 
 
 def tsp_dynamic_helper(m, start_node, end_node, tour_nodes, cache):
-    """Recursive helper function for dynamic_programming"""
+    """Recursive helper function for tsp_dynamic"""
     # Solution already in cache table
     if cache[start_node][list_to_index(tour_nodes)] != -1:
         return cache[start_node][list_to_index(tour_nodes)]
@@ -408,6 +411,7 @@ def matrix_print(m):
 
 
 def verify_exact_algorithms(graph_type, max_value, print_results=False):
+    """Verifies TSP algorithm accuracy"""
     # Make list of exact algorithms to test
     exact_algs = [tsp_brute_iterative, tsp_brute_recur, tsp_dynamic]
 
@@ -453,10 +457,15 @@ def verify_exact_algorithms(graph_type, max_value, print_results=False):
         for x in range(num_algs - 1):
             if results[x][0] != results[x + 1][0] \
                     and results[x][0] != list(reversed(results[x + 1][0])):
+                if print_results:
+                    print("Min paths inconsistent")
+                    print(results)
                 return False
             # Check if min cost is accurate on circular graphs where it is known
             if graph_type == "circular":
                 if round(results[x][1], 2) != round(min_cost, 2):
+                    if print_results:
+                        print("Min cost not found")
                     return False
 
         # If we made it this far, we know the results
@@ -487,3 +496,15 @@ def index_to_list(i):
         bits.append(i % 2)
         i //= 2
     return [i + 1 for i, j in enumerate(bits) if j == 1]
+
+
+def print_time(t, width):
+    """Converts nanoseconds if possible and print"""
+    if t > 1000000000:
+        s = t // 1000000000
+        print(f"{str(s) + 's':>{width}}", end="")
+    elif t > 1000000:
+        ms = t // 1000000
+        print(f"{str(ms) + 'ms':>{width}}", end="")
+    else:
+        print(f"{str(t) + 'ns':>{width}}", end="")
