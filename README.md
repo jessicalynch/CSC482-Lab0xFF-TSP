@@ -14,7 +14,7 @@ tsp_dynamic          	[0, 2, 1, 3, 4, 0]            	587.79
 tsp_greedy           	[0, 2, 1, 3, 4, 0]            	587.79
 ```
  
-Random graph
+Random 5x5 graph
 ```
 00 12 19 55 90
 12 00 95 16 35
