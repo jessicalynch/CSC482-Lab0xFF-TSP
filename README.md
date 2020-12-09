@@ -71,9 +71,9 @@ Convert cost matrix to **dictionary graph strutcure**
 ```
 
 ## TSP algorithms
-Each algorithm returns a path and cost
+Each algorithm returns a `path` and `cost`
 
-#### Exact algorithms
+### Exact algorithms
 
 Brute force (recursive and iterative)
 ``` python
@@ -90,7 +90,7 @@ Bellman–Held–Karp dynamic programming solution
 ([0, 2, 1, 3, 4, 0], 16)
 ```
 
-#### Heuristic algorithms 
+### Heuristic algorithms 
 
 Greedy (shortest next step) 
 ``` python
