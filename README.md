@@ -100,6 +100,11 @@ Greedy (shortest next step)
 
 Ant colony (one possible outcome)
 ``` python
->>> tsp.tsp_ant_colony(m, 10, 1, 1, 20)
+>>> num ants = 10
+>>> phero_factor = 1
+>>> decay_factor = 1
+>>> max_unchanged_steps = 20
+>>>
+>>> tsp.tsp_ant_colony(m, num ants, phero_factor, decay_factor, max_unchanged_steps)
 ([0, 4, 3, 1, 2, 0], 16)
 ```
