@@ -1,5 +1,6 @@
 # CSC482-Lab0xFF-TSP
 
+## Working with cost matrices
 Generate random cost matrix:
 ```
 >>> n = 5
@@ -27,4 +28,33 @@ Convert to dictionary graph strutcure:
     3: [(0, 8), (1, 4), (2, 7), (4, 3)],
     4: [(0, 3), (1, 6), (2, 7), (3, 3)]}
 
+```
+
+## TSP algorithms
+
+Brute force (recursive and iterative):
+```
+>>> tsp.tsp_brute_recur(m)
+([0, 2, 1, 3, 4, 0], 16)
+>>>
+>>> tsp.tsp_brute_iterative(m)
+([0, 2, 1, 3, 4, 0], 16)
+```
+
+Bellman–Held–Karp dynamic programming algorithm:
+```
+>>> tsp.tsp_dynamic(m)
+([0, 2, 1, 3, 4, 0], 16)
+```
+
+Greedy (shortest next step) algorithm:
+```
+>>> tsp.tsp_greedy(m)
+([0, 1, 2, 3, 4, 0], 17)
+```
+
+Ant colony algorithm (possible outcome):
+```
+>>> tsp.tsp_ant_colony(m, 10, 1, 1, 20)
+([0, 4, 3, 1, 2, 0], 16)
 ```
