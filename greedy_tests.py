@@ -7,11 +7,11 @@ import sys
 from os.path import dirname, join
 from time import perf_counter_ns, time_ns
 
-# Route print statements to file
-current_dir = dirname(__file__)
-file_name = "greedy_performance_" + str(time_ns()) + ".txt"
-file_path = join(current_dir, file_name)
-sys.stdout = open(file_path, "w")
+# # Route print statements to file
+# current_dir = dirname(__file__)
+# file_name = "greedy_performance_" + str(time_ns()) + ".txt"
+# file_path = join(current_dir, file_name)
+# sys.stdout = open(file_path, "w")
 
 
 def main():
@@ -20,8 +20,8 @@ def main():
 
     # Determine max run time for each algorithm
     one_second = 1000000000  # 1 second in nanoseconds
-    MAX_RUN_TIME = one_second * 60 * 10
-    # MAX_RUN_TIME = one_second  # small value for testing
+    # MAX_RUN_TIME = one_second * 60 * 10
+    MAX_RUN_TIME = one_second  # small value for testing
     MAX_COST = 100
 
     # Init table variables
@@ -53,15 +53,7 @@ def main():
 
     # Test alg with increasing N x N matrices
     N = 2
-    while N < sys.maxsize:
-        # Exit if function is complete
-        if timed_out:
-            print("Function timed out")
-            break
-
-        # Otherwise assume complete and keep testing
-        timed_out = True
-
+    while N < sys.maxsize and not timed_out:
         # Print current N value
         print(f"{N:>{col_width_small}}", end="")
 
@@ -81,7 +73,7 @@ def main():
         # and print time taken for current function
         tsp.print_time(t1, col_width_med)
 
-        # Calculate doubling ratio
+        # Print expected and actual doubling ratio
         if N >= 4:
             expected_dr = ((N - 1) * (N / 2) + 1) / ((N//2 - 1) * (N//2 / 2) + 1)
             doubling_ratio = t1 / previous_result
@@ -89,18 +81,18 @@ def main():
             print(f"{expected_dr:>{col_width_med}.2f}", end="")
         else:
             print(f"{'':>{col_width_med * 2}}", end="")
+        print()
 
         # Store time result from current run
         previous_result = t1
 
-        # Change flag if current runtime is less than max
-        if t1 < MAX_RUN_TIME:
-            timed_out = False
+        # Quit once the function takes too long
+        if t1 > MAX_RUN_TIME:
+            timed_out = True
+            print("Function timed out")
 
         # Double the matrix size
         N *= 2
-
-        print()
 
 
 if __name__ == "__main__":
