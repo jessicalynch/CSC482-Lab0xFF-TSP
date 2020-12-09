@@ -2,7 +2,7 @@
 
 ## Working with cost matrices
 
-Generate cost matrix for evenly spaced coordinates around a circle
+Generate cost matrix for **evenly spaced (x,y) coordinates around a circle**
   * Vertex numbers in random order
   * Traveling around the circle will always be the shortest path
   
@@ -25,7 +25,7 @@ Generate cost matrix for evenly spaced coordinates around a circle
 58.77852522924731
 ```
 
-Generate cost matrix for random Euclidean graph
+Generate cost matrix for **random Euclidean graph**
 ``` python
 >>> m = tsp.generate_euclidean_cost_matrix(n, max_cost)
 >>> tsp.matrix_print(m)
@@ -36,7 +36,7 @@ Generate cost matrix for random Euclidean graph
 4.1 3.0 2.2 5.8 0.0
 ```
 
-Generate random cost matrix and write to file
+Generate **random cost matrix** and **write to file**
 ``` python
 >>> n = 5
 >>> max_cost = 10
@@ -44,7 +44,7 @@ Generate random cost matrix and write to file
 >>> tsp.write_matrix_to_file(m, "matrix.txt")
 ```
 
-Read matrix from file and print
+**Read matrix from file** and **print matrix**
 ``` python
 >>> m = tsp.read_matrix_from_file("matrix.txt")
 >>> tsp.matrix_print(m)
@@ -54,7 +54,7 @@ Read matrix from file and print
 8 4 7 0 3
 3 6 7 3 0
 ```
-Convert to dictionary graph strutcure
+Convert cost matrix to **dictionary graph strutcure**
 ``` python
 >>> import pprint
 >>> pp = pprint.PrettyPrinter(indent=4)
