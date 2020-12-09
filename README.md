@@ -71,6 +71,9 @@ Convert cost matrix to **dictionary graph strutcure**
 ```
 
 ## TSP algorithms
+Each algorithm returns a path and cost
+
+#### Exact algorithms
 
 Brute force (recursive and iterative)
 ``` python
@@ -81,19 +84,21 @@ Brute force (recursive and iterative)
 ([0, 2, 1, 3, 4, 0], 16)
 ```
 
-Bellman–Held–Karp dynamic programming algorithm
+Bellman–Held–Karp dynamic programming solution
 ``` python
 >>> tsp.tsp_dynamic(m)
 ([0, 2, 1, 3, 4, 0], 16)
 ```
 
-Greedy (shortest next step) algorithm
+#### Heuristic algorithms 
+
+Greedy (shortest next step) 
 ``` python
 >>> tsp.tsp_greedy(m)
 ([0, 1, 2, 3, 4, 0], 17)
 ```
 
-Ant colony algorithm (one possible outcome)
+Ant colony (one possible outcome)
 ``` python
 >>> tsp.tsp_ant_colony(m, 10, 1, 1, 20)
 ([0, 4, 3, 1, 2, 0], 16)
