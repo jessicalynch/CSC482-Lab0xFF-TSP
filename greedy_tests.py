@@ -7,11 +7,11 @@ import sys
 from os.path import dirname, join
 from time import perf_counter_ns, time_ns
 
-# # Route print statements to file
-# current_dir = dirname(__file__)
-# file_name = "greedy_performance_" + str(time_ns()) + ".txt"
-# file_path = join(current_dir, file_name)
-# sys.stdout = open(file_path, "w")
+# Route print statements to file
+current_dir = dirname(__file__)
+file_name = "greedy_performance_" + str(time_ns()) + ".txt"
+file_path = join(current_dir, file_name)
+sys.stdout = open(file_path, "w")
 
 
 def main():
@@ -20,8 +20,8 @@ def main():
 
     # Determine max run time for each algorithm
     one_second = 1000000000  # 1 second in nanoseconds
-    # MAX_RUN_TIME = one_second * 60 * 10
-    MAX_RUN_TIME = one_second  # small value for testing
+    MAX_RUN_TIME = one_second * 60 * 30
+    # MAX_RUN_TIME = one_second  # small value for testing
     MAX_COST = 100
 
     # Init table variables

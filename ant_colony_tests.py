@@ -22,11 +22,9 @@ def main():
     col_width_med = col_width_full // cols_per_func
     col_width_small = 10
 
-    # Print function names (header top row)
+    # Print function name and test info
     print(f"{'':>{col_width_small}}", end="")
     print(f"{'Ant Colony':>{col_width_full}}", end="")
-    print()
-
     print("Trials per N x N matrix:", NUM_TRIALS_PER_N)
     print("Graph type: circular Euclidean")
     print("Graph radius:", MAX_COST)
@@ -37,19 +35,18 @@ def main():
         print(f"{param:>{col_width_med}}", end="")
     print("\n")
 
-    # Start testing algorithm with increasing N x N matrices
+    # Test algorithm with N x N matrices
     # for N in range(2, MAX_MATRIX_SIZE + 1):
     N = 9
     while True:
-
         # Print current N value
         print(f"{N:>{col_width_small}}", end="")
 
-        # Generate a N x N matrix
+        # Generate N x N matrix
         matrix, min_path, min_cost = tsp.generate_circular_cost_matrix(N, MAX_COST)
 
-        phero_factor = 2
-        decay_factor = .5
+        phero_factor = 1
+        decay_factor = 1
         ants = 100
         steps = 20
 
@@ -60,7 +57,6 @@ def main():
             total_cost += cost
             if path == min_path or path == list(reversed(min_path)):
                 correct += 1
-
         percent_correct = (correct / NUM_TRIALS_PER_N) * 100
         average_cost = total_cost / NUM_TRIALS_PER_N
 
